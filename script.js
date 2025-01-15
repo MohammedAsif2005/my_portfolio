@@ -1,108 +1,136 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Log a success message to the console
     console.log("Portfolio website loaded successfully!");
 
-    // Display a dynamic welcome alert based on the time of day
+    // Dynamic Greeting
     const currentHour = new Date().getHours();
-    let greeting;
-    if (currentHour < 12) {
-        greeting = "Good Morning";
-    } else if (currentHour < 18) {
-        greeting = "Good Afternoon";
-    } else {
-        greeting = "Good Evening";
-    }
+    let greeting = currentHour < 12 ? "Good Morning" : currentHour < 18 ? "Good Afternoon" : "Good Evening";
     alert(`Welcome to My Portfolio! 🌟 ${greeting}! Explore and enjoy!`);
 
-    // Add a typewriter effect to the header's main title
+    // GSAP: Typewriter effect with live animation
     const headerTitle = document.querySelector("header h1");
     const titleText = headerTitle.textContent;
     headerTitle.textContent = "";
-    let i = 0;
+    const cursor = document.createElement("span");
+    cursor.textContent = "|";
+    cursor.classList.add("cursor");
+    headerTitle.appendChild(cursor);
 
+    let i = 0;
     const typeWriter = () => {
         if (i < titleText.length) {
-            headerTitle.textContent += titleText.charAt(i);
+            headerTitle.textContent = titleText.slice(0, i + 1);
+            headerTitle.appendChild(cursor);
             i++;
-            setTimeout(typeWriter, 100); // Adjust the speed of typing
+            setTimeout(typeWriter, 100);
+        } else {
+            cursor.remove();
         }
     };
     typeWriter();
 
-    // Add a smooth scroll effect for navigation links
+    // GSAP: Smooth scroll animation for navigation
     const navLinks = document.querySelectorAll("nav a");
     navLinks.forEach(link => {
         link.addEventListener("click", event => {
             event.preventDefault();
             const targetId = event.target.getAttribute("href").substring(1);
             const targetElement = document.getElementById(targetId);
-
             if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 50, // Adjust for fixed header
-                    behavior: "smooth"
+                gsap.to(window, {
+                    scrollTo: { y: targetElement.offsetTop - 50 },
+                    duration: 1,
+                    ease: "power2.inOut",
                 });
             }
         });
     });
 
-    // Add a "Back to Top" button
+    // "Back to Top" button with animation
     const backToTopButton = document.createElement("button");
     backToTopButton.textContent = "↑ Top";
-    backToTopButton.style.position = "fixed";
-    backToTopButton.style.bottom = "20px";
-    backToTopButton.style.right = "20px";
-    backToTopButton.style.padding = "10px 15px";
-    backToTopButton.style.backgroundColor = "#4CAF50";
-    backToTopButton.style.color = "white";
-    backToTopButton.style.border = "none";
-    backToTopButton.style.borderRadius = "5px";
-    backToTopButton.style.cursor = "pointer";
-    backToTopButton.style.display = "none"; // Initially hidden
+    Object.assign(backToTopButton.style, {
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        padding: "10px 15px",
+        backgroundColor: "#4CAF50",
+        color: "white",
+        border: "none",
+        borderRadius: "5px",
+        cursor: "pointer",
+        display: "none",
+        zIndex: "1000",
+    });
     document.body.appendChild(backToTopButton);
 
     backToTopButton.addEventListener("click", () => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
+        gsap.to(window, {
+            scrollTo: { y: 0 },
+            duration: 1,
+            ease: "power2.inOut",
         });
     });
 
-    // Show or hide the "Back to Top" button based on scroll position
     window.addEventListener("scroll", () => {
         if (window.scrollY > 300) {
             backToTopButton.style.display = "block";
+            gsap.fromTo(backToTopButton, { scale: 0.8 }, { scale: 1, duration: 0.5, ease: "bounce.out" });
         } else {
             backToTopButton.style.display = "none";
         }
     });
 
-    // Add a dynamic year to the footer
-    const footer = document.querySelector("footer p");
-    const currentYear = new Date().getFullYear();
-    footer.textContent = `© ${currentYear} Mohammed Asif M U - All Rights Reserved`;
-
-    // Add hover effect to navigation links for better engagement
-    navLinks.forEach(link => {
-        link.addEventListener("mouseover", () => {
-            link.style.color = "#4CAF50";
-            link.style.transition = "color 0.3s";
-        });
-        link.addEventListener("mouseout", () => {
-            link.style.color = "";
+    // GSAP: Section fade-in animations
+    const sections = document.querySelectorAll("section");
+    sections.forEach(section => {
+        gsap.from(section, {
+            scrollTrigger: {
+                trigger: section,
+                start: "top 80%", // Animation starts when 80% of the section is visible
+                toggleActions: "play none none reverse",
+            },
+            opacity: 0,
+            y: 50,
+            duration: 1,
         });
     });
 
-    // Add a fun greeting animation
+    // Light/Dark mode toggle
+    const modeToggleButton = document.createElement("button");
+    modeToggleButton.textContent = "Toggle Light/Dark Mode";
+    Object.assign(modeToggleButton.style, {
+        position: "fixed",
+        top: "20px",
+        right: "20px",
+        padding: "10px",
+        backgroundColor: "#4CAF50",
+        color: "white",
+        border: "none",
+        borderRadius: "5px",
+        cursor: "pointer",
+        zIndex: "1000",
+    });
+    document.body.appendChild(modeToggleButton);
+
+    modeToggleButton.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        gsap.to("body", {
+            backgroundColor: document.body.classList.contains("dark-mode") ? "#121212" : "#ffffff",
+            color: document.body.classList.contains("dark-mode") ? "#ffffff" : "#000000",
+            duration: 0.5,
+        });
+    });
+
+    // GSAP: Welcome section animation
     const welcomeSection = document.querySelector(".welcome-section");
     if (welcomeSection) {
         const welcomeText = welcomeSection.querySelector("p");
-        welcomeText.style.opacity = "0";
-        welcomeText.style.transform = "translateY(20px)";
-        setTimeout(() => {
-            welcomeText.style.transition = "all 1s ease-out";
-            welcomeText.style.opacity = "1";
-            welcomeText.style.transform = "translateY(0)";
-        }, 500);
+        gsap.from(welcomeText, {
+            opacity: 0,
+            y: 30,
+            duration: 1,
+            ease: "power2.out",
+        });
     }
 });
+console.log(gsap.version); // Should print the version number, e.g., "3.12.2"
